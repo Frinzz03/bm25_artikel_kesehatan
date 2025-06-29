@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Artikel Kesehatan Finder</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    .category-scroll {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 10px;
+        gap: 0.5rem;
+    }
+
+    .category-scroll::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .category-scroll::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 128, 0, 0.5);
+        border-radius: 10px;
+    }
+
+    .category-scroll a {
+        white-space: nowrap;
+        flex: 0 0 auto;
+    }
+
+    .btn.active {
+        background-color: #198754;
+        color: white;
+        border-color: #198754;
+    }
+    </style>
+
+</head>
+<body>
+  <nav class="navbar navbar-dark bg-success mb-4">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/">🩺 Artikel Kesehatan Finder</a>
+      <span class="navbar-text text-white">23-112 Fariel Nur Rizky Maulana</span>
+    </div>
+  </nav>
+
+  <div class="container">
+    <form method="POST" class="p-4 shadow rounded bg-light">
+      <h3 class="text-center mb-4">Cari Artikel Kesehatan</h3>
+      <div class="input-group mb-3">
+        <input type="text" class="form-control" name="query" placeholder="Contoh: manfaat jahe untuk kesehatan" value="{{ query }}">
+        <button type="submit" class="btn btn-success">Cari</button>
+      </div>
+    </form>
+
+    {% if categories %}
+    <div class="mt-4 mb-3">
+        <h6>Pilih Kategori:</h6>
+        <div class="category-scroll">
+            {% for cat in categories %}
+            <a href="{{ url_for('index', category=cat) }}"
+                class="btn btn-outline-success btn-sm me-2 mb-2 {% if selected_category == cat %}active{% endif %}">
+                {{ cat }}
+            </a>
+            {% endfor %}
+        </div>
+        </div>
+    {% endif %}
+
+    {% if results %}
+    <div class="mt-4">
+      <h5>Hasil pencarian untuk: <strong>{{ query }}</strong></h5>
+      <div class="list-group mt-3">
+        {% for item in results %}
+        <div class="list-group-item">
+          <h5 class="mb-1">
+            <a href="{{ item.link }}" target="_blank">{{ item.title }}</a>
+          </h5>
+          <p class="mb-1 text-muted">{{ item.content[:250] }}{% if item.content|length > 250 %}...{% endif %}</p>
+          <small>Kategori: {{ item.category }} | Skor: {{ "%.2f"|format(item.score) }}, Confidence: {{ "%.2f"|format(item.confidence * 100) }}%</small>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% elif query %}
+    <div class="alert alert-warning mt-4">
+      Tidak ditemukan hasil untuk "<strong>{{ query }}</strong>".
+    </div>
+    {% endif %}
+  </div>
+</body>
+</html>
