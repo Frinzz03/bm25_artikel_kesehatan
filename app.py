@@ -4,8 +4,7 @@ from bm25_approach import find_matching_articles
 
 app = Flask(__name__)
 
-# Load dataset dan kategori
-# data = pd.read_csv("liputan6_health_articles_with_category.csv")
+# === Load dataset dan kategori ===
 data = pd.read_csv("klikdokter_articles_multi_category.csv")
 categories = sorted(data['category'].dropna().unique().tolist())
 
@@ -15,18 +14,19 @@ def index():
     results = []
     selected_category = request.args.get("category", "")
 
-    # Kalau POST (ada query)
+    # Kalau POST (ada query dari form pencarian)
     if request.method == "POST":
         query = request.form.get("query", "").strip()
         if query:
             all_results = find_matching_articles(query, top_k=20)
-            # Filter berdasarkan kategori kalau dipilih
+
+            # Filter by kategori jika dipilih
             if selected_category:
                 results = [r for r in all_results if r["category"] == selected_category]
             else:
                 results = all_results
 
-    # Kalau GET dan hanya kategori (tanpa pencarian)
+    # Kalau GET dan hanya klik kategori
     elif selected_category:
         filtered = data[data["category"] == selected_category][['title', 'content', 'link', 'category']]
         filtered = filtered.fillna("")
@@ -40,7 +40,6 @@ def index():
                 "score": 0.0,
                 "confidence": 0.0
             })
-
 
     return render_template(
         "index.html",
